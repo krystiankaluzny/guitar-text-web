@@ -1,6 +1,61 @@
-<html>
-<head></head>
+<html lang="en">
+<head>
+    <!-- Required Stylesheets -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Required Javascript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script>
+    <title>Directories</title>
+</head>
 <body>
-<p>Index</p>
+<div id="tree"></div>
 </body>
+
+<script>
+    var tree = [];
+    var nodesMap = { root : { nodes: tree} };
+
+    $(document).ready(function () {
+        $('#tree').on('nodeSelected', function(event, data) {
+            console.log(data)
+        });
+        getChildren('root')
+    });
+
+    function getChildren(parentId) {
+        fetch('/file/' + parentId + '/children')
+            .then(resp => resp.json())
+            .then(resp => {
+
+                resp.forEach(file => {
+                    var node = {
+                        id: file.id,
+                        text: file.name,
+                        icon: iconForMimeType(file.mimeType),
+                        nodes: file.mimeType === 'application/vnd.google-apps.folder' ? [] : undefined
+                    };
+
+                    nodesMap[parentId].nodes = nodesMap[parentId].nodes || [];
+                    nodesMap[parentId].nodes.push(node);
+                    nodesMap[node.id] = node;
+                });
+
+                $('#tree').treeview({
+                    data: tree,
+                    onNodeSelected: function (event, data) {
+                        getChildren(data.id);
+                    }
+                });
+            });
+    }
+
+    function iconForMimeType(mimeType) {
+        switch (mimeType) {
+            case 'application/vnd.google-apps.folder' : return 'glyphicon glyphicon-folder-open';
+            case 'image/jpeg' : return 'glyphicon glyphicon-picture';
+            default: return 'glyphicon glyphicon-file';
+        }
+    }
+</script>
 </html>

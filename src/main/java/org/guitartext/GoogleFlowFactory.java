@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Collections;
 
 class GoogleFlowFactory {
 
@@ -34,15 +33,6 @@ class GoogleFlowFactory {
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
-
-//        final LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-//                .setHost(host)
-//                .setPort(port)
-//                .setCallbackPath(callbackPath)
-//                .build();
-//
-//        return new AuthorizationCodeInstalledApp(flow, receiver)
-//                .authorize("user");
     }
 
     private GoogleClientSecrets loadGoogleClientSecrets() throws IOException {
