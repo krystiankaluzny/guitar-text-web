@@ -1,12 +1,10 @@
 package org.guitartext;
 
-import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -25,27 +23,6 @@ public class Application {
 
     public static void main(final String[] args) throws IOException, GeneralSecurityException {
         SpringApplication.run(Application.class, args);
-//
-//        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-//        final Credential httpRequestInitializer = CredentialFactory.create(HTTP_TRANSPORT, SCOPES);
-//        Drive service = new Drive.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), httpRequestInitializer)
-//                .setApplicationName("guitartext")
-//                .build();
-//
-//        // Print the names and IDs for up to 10 files.
-//        FileList result = service.files().list()
-//                .setPageSize(10)
-//                .setFields("nextPageToken, files(id, name)")
-//                .execute();
-//        List<File> files = result.getFiles();
-//        if (files == null || files.isEmpty()) {
-//            System.out.println("No files found.");
-//        } else {
-//            System.out.println("Files:");
-//            for (File file : files) {
-//                System.out.printf("%s (%s)\n", file.getName(), file.getId());
-//            }
-//        }
     }
 
     @Bean
