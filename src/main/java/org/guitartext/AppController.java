@@ -31,14 +31,18 @@ class AppController {
     private static final ObjectMapper mapper = new ObjectMapper();
     private final String userId = "user";
 
+    private final FileService fileService;
     private final NetHttpTransport netHttpTransport;
     private final JsonFactory jsonFactory;
-
     private final GoogleAuthorizationCodeFlow flow;
     private String redirectUri;
 
-    public AppController(final NetHttpTransport netHttpTransport, final JsonFactory jsonFactory, final GoogleAuthorizationCodeFlow flow,
+    public AppController(final FileService fileService,
+                         final NetHttpTransport netHttpTransport,
+                         final JsonFactory jsonFactory,
+                         final GoogleAuthorizationCodeFlow flow,
                          @Value("${app.redirect.uri}") final String redirectUri) {
+        this.fileService = fileService;
         this.netHttpTransport = netHttpTransport;
         this.jsonFactory = jsonFactory;
         this.flow = flow;
@@ -79,17 +83,33 @@ class AppController {
 
     @GetMapping(value = "/file/{fileId}/children", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    String listFiles(@PathVariable("fileId") String fileId) throws IOException {
+    String getChildren(@PathVariable("fileId") String fileId) throws IOException {
 
         LOGGER.info("START");
+        final List<FileDTO> children = getChildrenFiles(fileId);
+
+        LOGGER.info("STOP");
+        return mapper.writeValueAsString(children);
+    }
+
+    @GetMapping(value = "/file/{fileId}/children/refresh", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    String refreshAndGetChildren(@PathVariable("fileId") String fileId) throws IOException {
+
+        LOGGER.info("START");
+        fileService.clearInfo(fileId);
+        final List<FileDTO> children = getChildrenFiles(fileId);
+
+        LOGGER.info("STOP");
+        return mapper.writeValueAsString(children);
+    }
+
+    private List<FileDTO> getChildrenFiles(@PathVariable("fileId") String fileId) throws IOException {
         final Credential credential = flow.loadCredential(userId);
         final Drive service = new Drive.Builder(netHttpTransport, jsonFactory, credential)
                 .setApplicationName("guitartext")
                 .build();
 
-        final List<FileDTO> children = new FileService().getChildren(service, fileId);
-
-        LOGGER.info("STOP");
-        return mapper.writeValueAsString(children);
+        return fileService.getChildren(service, fileId);
     }
 }
