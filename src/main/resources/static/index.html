@@ -28,24 +28,27 @@
             .then(resp => resp.json())
             .then(resp => {
 
+                nodesMap[parentId].updateTime = new Date().getTime();
+                nodesMap[parentId].nodes = nodesMap[parentId].nodes || [];
+                nodesMap[parentId].nodes.length = 0;
+
                 resp.forEach(file => {
                     var node = {
                         id: file.id,
                         text: file.name,
                         icon: iconForMimeType(file.mimeType),
-                        nodes: file.mimeType === 'application/vnd.google-apps.folder' ? [] : undefined
+                        nodes: file.mimeType === 'application/vnd.google-apps.folder' ? [] : undefined,
+                        state: { expanded: false }
                     };
 
-                    nodesMap[parentId].nodes = nodesMap[parentId].nodes || [];
                     nodesMap[parentId].nodes.push(node);
                     nodesMap[node.id] = node;
                 });
 
                 $('#tree').treeview({
                     data: tree,
-                    onNodeSelected: function (event, data) {
-                        getChildren(data.id);
-                    }
+                    onNodeExpanded: onNodeExpanded,
+                    onNodeCollapsed: onNodeCollapsed
                 });
             });
     }
@@ -57,5 +60,19 @@
             default: return 'glyphicon glyphicon-file';
         }
     }
+
+    function onNodeExpanded(event, data) {
+        var now = new Date().getTime();
+        if(data.updateTime === undefined || now - data.updateTime > 600000) {
+            getChildren(data.id);
+        }
+
+        nodesMap[data.id].state.expanded = true;
+    }
+
+    function onNodeCollapsed(event, data) {
+        nodesMap[data.id].state.expanded = false;
+    }
+
 </script>
 </html>
